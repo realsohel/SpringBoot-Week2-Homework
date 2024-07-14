@@ -2,6 +2,7 @@ package com.springBootweek2Homework.week2Homework.services;
 
 import com.springBootweek2Homework.week2Homework.dtos.DepartmentDTO;
 import com.springBootweek2Homework.week2Homework.entities.DepartmentEntity;
+import com.springBootweek2Homework.week2Homework.exceptions.ResourceNotFoundException;
 import com.springBootweek2Homework.week2Homework.repositories.DepartmentRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class DepartmentService {
     }
 
     public Optional<DepartmentDTO> getDepartmentById(Long id) {
+        isExistedByid(id);
         return departmentRepository.findById(id)
                 .map((dep)-> modelMapper.map(dep, DepartmentDTO.class));
     }
@@ -57,15 +59,13 @@ public class DepartmentService {
 
     }
 
-    public Boolean isExisted(Long id){
-        Boolean exists = departmentRepository.existsById(id);
+    public void isExistedByid(Long Id){
+        Boolean exists = departmentRepository.existsById(Id);
         if(!exists)
-            return false;
-        return true;
+            throw  new ResourceNotFoundException("Employee not found with Id " + Id);
     }
     public Boolean deleteDepartment(Long id) {
-        if(!isExisted(id))
-            return false;
+        isExistedByid(id);
 
         departmentRepository.deleteById(id);
 
@@ -75,8 +75,7 @@ public class DepartmentService {
 
 
     public DepartmentDTO patchDepartment(Map<String, Object> updates, Long id) {
-        if(!isExisted(id))
-            return null;
+        isExistedByid(id);
 
         DepartmentEntity departmentEntity = departmentRepository.findById(id).get();
 

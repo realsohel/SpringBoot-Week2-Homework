@@ -1,11 +1,16 @@
 package com.springBootweek2Homework.week2Homework.controllers;
 
 import com.springBootweek2Homework.week2Homework.dtos.DepartmentDTO;
+import com.springBootweek2Homework.week2Homework.exceptions.ResourceNotFoundException;
 import com.springBootweek2Homework.week2Homework.services.DepartmentService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RestController
@@ -20,39 +25,51 @@ public class DepartmentController {
     }
 
     @GetMapping(path = "")
-    public List<DepartmentDTO> getAllDepartments(){
+    public ResponseEntity<List<DepartmentDTO>> getAllDepartments(){
         List<DepartmentDTO> allDepartments= departmentService.getAllDepartments();
-        return allDepartments;
+        return  ResponseEntity.ok(allDepartments);
     }
 
     @GetMapping(path = "/{departmentId}")
-    public Optional<DepartmentDTO> getDepartmentById(@PathVariable(name = "departmentId") Long id){
-        return departmentService.getDepartmentById(id);
+    public ResponseEntity<DepartmentDTO> getDepartmentById(@PathVariable(name = "departmentId") Long id){
+        Optional<DepartmentDTO> departmentDTO = departmentService.getDepartmentById(id);
+
+        return departmentDTO.map(
+                (dep)->ResponseEntity.ok(dep))
+                .orElseThrow(()-> new ResourceNotFoundException("Department not Found"));
+
     }
 
 
     @PostMapping(path = "")
-    public DepartmentDTO addDepartment(@RequestBody DepartmentDTO inpDep){
+    public ResponseEntity<DepartmentDTO> addDepartment(@RequestBody @Valid DepartmentDTO inpDep){
         DepartmentDTO departmentDTO = departmentService.addDepartment( inpDep);
 //
-        return departmentDTO;
+        return new ResponseEntity<>(departmentDTO,HttpStatus.CREATED);
     }
 
     @PutMapping(path = "/{departmentId}")
-    public DepartmentDTO updateDepartment(@RequestBody DepartmentDTO dep, @PathVariable(name = "departmentId") Long id){
+    public ResponseEntity<DepartmentDTO> updateDepartment(@RequestBody @Valid DepartmentDTO dep, @PathVariable(name = "departmentId") Long id){
         DepartmentDTO departmentDTO = departmentService.updateDepartment(dep,id);
-        return departmentDTO;
+        return ResponseEntity.ok(departmentDTO);
     }
 
     @DeleteMapping(path = "/{departmentId}")
-    public Boolean deleteDepartment( @PathVariable(name = "departmentId") Long id){
-        return departmentService.deleteDepartment(id);
+    public ResponseEntity<Boolean> deleteDepartment( @PathVariable(name = "departmentId") Long id){
+        Boolean del =  departmentService.deleteDepartment(id);
+        if(del)
+            return  ResponseEntity.ok(true);
+        return ResponseEntity.notFound().build();
+
     }
 
     @PatchMapping(path = "/{departmentId}")
-    public DepartmentDTO patchDepartment(@RequestBody Map<String, Object> updates, @PathVariable(name = "departmentId") Long id){
+    public ResponseEntity<DepartmentDTO> patchDepartment(@RequestBody @Valid Map<String, Object> updates, @PathVariable(name = "departmentId") Long id){
         DepartmentDTO departmentDTO = departmentService.patchDepartment(updates,id);
-        return departmentDTO;
+        if(departmentDTO==null)
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(departmentDTO);
     }
 
 
