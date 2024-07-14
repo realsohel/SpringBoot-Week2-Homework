@@ -28,10 +28,11 @@ public class DepartmentEntity {
     @JsonProperty("isActive")
     private Boolean isActive;
 
-
     @JsonFormat(pattern = "hh:mm:ss dd-MM-yyyy")
     private LocalDateTime createdAt;
+    private Integer chkPrime;
 
+    private String Password;
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

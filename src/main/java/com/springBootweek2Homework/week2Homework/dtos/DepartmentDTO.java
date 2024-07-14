@@ -2,6 +2,8 @@ package com.springBootweek2Homework.week2Homework.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.springBootweek2Homework.week2Homework.annotations.PasswordValidation;
+import com.springBootweek2Homework.week2Homework.annotations.PrimeNumberValidation;
 import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -28,6 +30,12 @@ public class DepartmentDTO {
     private Boolean isActive;
 
 
+    @PrimeNumberValidation
+    private Integer chkPrime;
+
+    @Size(min=10, message = "Password must contain atleast 10 characters")
+    @PasswordValidation
+    private String Password;
     @JsonFormat(pattern = "hh:mm:ss dd-MM-yyyy")
     private LocalDateTime createdAt;
 
